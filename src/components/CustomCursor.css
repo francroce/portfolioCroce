@@ -1,0 +1,81 @@
+/* Hide default cursor on desktop */
+@media (hover: hover) and (pointer: fine) {
+  * { cursor: none !important; }
+}
+
+.cursor-dot {
+  position: fixed;
+  top: -5px;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: width 0.25s ease, height 0.25s ease, top 0.25s ease, left 0.25s ease, opacity 0.3s ease, background 0.25s ease;
+  will-change: transform;
+  mix-blend-mode: difference;
+}
+.cursor-dot.cursor-hover {
+  width: 40px;
+  height: 40px;
+  top: -20px;
+  left: -20px;
+  background: var(--accent);
+  opacity: 0.3;
+}
+
+.cursor-glow {
+  position: fixed;
+  top: -20px;
+  left: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: width 0.35s ease, height 0.35s ease, top 0.35s ease, left 0.35s ease, opacity 0.35s ease, border-color 0.25s ease;
+  will-change: transform;
+}
+.cursor-glow.cursor-hover {
+  width: 60px;
+  height: 60px;
+  top: -30px;
+  left: -30px;
+  border-color: rgba(0, 240, 255, 0.6);
+}
+
+.cursor-ripple {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  margin-top: -10px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  pointer-events: none;
+  z-index: 10000;
+  animation: cursorRipple 0.6s ease-out forwards;
+}
+
+@keyframes cursorRipple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Disable on touch devices */
+@media (hover: none) {
+  .cursor-dot,
+  .cursor-glow,
+  .cursor-ripple { display: none !important; }
+}

@@ -1,0 +1,159 @@
+/* ── Zigzag Timeline (centered vertical line, alternating sides) ── */
+
+.accent-text {
+  color: var(--accent);
+}
+
+.tl-zigzag {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+/* Vertical center line */
+.tl-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--border) 10%,
+    var(--border) 90%,
+    transparent
+  );
+}
+
+/* Each row */
+.tl-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 60px;
+}
+.tl-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Dot on the center line */
+.tl-dot {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2.5px solid var(--accent);
+  transform: translateX(-50%);
+  z-index: 2;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+  transition: all var(--transition);
+}
+.tl-row:hover .tl-dot {
+  background: var(--accent);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+}
+
+/* Card */
+.tl-card {
+  width: calc(50% - 40px);
+  text-align: center;
+  transition: all var(--transition);
+}
+.tl-row:hover .tl-card {
+  transform: translateY(-4px);
+}
+
+/* Left-aligned rows: card on left */
+.tl-left .tl-card {
+  margin-right: auto;
+}
+
+/* Right-aligned rows: card on right */
+.tl-right .tl-card {
+  margin-left: auto;
+}
+
+/* Period with calendar icon */
+.tl-period {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.tl-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.tl-org {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.tl-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-weight: 300;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.tl-badge {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* ── Mobile: stack everything ── */
+@media (max-width: 640px) {
+  .tl-line {
+    left: 20px;
+  }
+
+  .tl-dot {
+    left: 20px;
+    top: 0;
+  }
+
+  .tl-row {
+    margin-bottom: 44px;
+  }
+
+  .tl-left .tl-card,
+  .tl-right .tl-card {
+    width: 100%;
+    margin-left: 48px;
+    margin-right: 0;
+    text-align: left;
+  }
+
+  .tl-desc {
+    margin: 0;
+  }
+}
