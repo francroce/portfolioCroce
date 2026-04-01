@@ -61,7 +61,7 @@ export default function Contact({ data }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            access_key: '8f45c158-f259-47c5-adbd-4684784f252d',
+            access_key: import.meta.env.VITE_WEB_3_FORMS_KEY,
             from_name: newValues.name,
             email: newValues.email,
             subject: `Contacto desde portfolio — ${newValues.name}`,
@@ -183,7 +183,6 @@ export default function Contact({ data }) {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   disabled={sent}
-                  autoFocus
                   className="terminal-hidden-input"
                 />
               </form>

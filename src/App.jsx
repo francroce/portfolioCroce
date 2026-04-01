@@ -14,7 +14,7 @@ import AdminPanel from './components/AdminPanel';
 import CustomCursor from './components/CustomCursor';
 import CommandBar from './components/CommandBar';
 
-const ADMIN_PASSWORD = 'franco2024';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 
 function AdminGate({ onAuth }) {
   const [pw, setPw] = useState('');
