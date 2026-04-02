@@ -1,8 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Icons } from './Icons';
 import { uid } from '../utils/uid';
 import { storage } from '../utils/storage';
 import './AdminPanel.css';
+
+// Helper to read a nested value by dot path
+function getByPath(obj, path) {
+  return path.split('.').reduce((o, k) => o[isNaN(k) ? k : parseInt(k)], obj);
+}
+
+// Field component defined OUTSIDE to avoid remounting on every render
+function Field({ label, path, textarea, placeholder, draft, update }) {
+  const value = getByPath(draft, path);
+  return (
+    <div className="admin-field">
+      <label className="admin-label">{label}</label>
+      {textarea ? (
+        <textarea
+          className="admin-textarea"
+          value={value}
+          onChange={(e) => update(path, e.target.value)}
+          placeholder={placeholder}
+        />
+      ) : (
+        <input
+          className="admin-input"
+          value={value}
+          onChange={(e) => update(path, e.target.value)}
+          placeholder={placeholder}
+        />
+      )}
+    </div>
+  );
+}
 
 export default function AdminPanel({ data, setData, open, onClose }) {
   const [tab, setTab] = useState('hero');
@@ -13,7 +43,7 @@ export default function AdminPanel({ data, setData, open, onClose }) {
     if (open) setDraft(structuredClone(data));
   }, [data, open]);
 
-  const update = (path, value) => {
+  const update = useCallback((path, value) => {
     setDraft((prev) => {
       const next = structuredClone(prev);
       const keys = path.split('.');
@@ -26,7 +56,7 @@ export default function AdminPanel({ data, setData, open, onClose }) {
       obj[lastKey] = value;
       return next;
     });
-  };
+  }, []);
 
   const addItem = (arrayPath, template) => {
     setDraft((prev) => {
@@ -67,30 +97,6 @@ export default function AdminPanel({ data, setData, open, onClose }) {
     }
   };
 
-  const Field = ({ label, path, textarea, placeholder }) => {
-    const value = path.split('.').reduce((o, k) => o[isNaN(k) ? k : parseInt(k)], draft);
-    return (
-      <div className="admin-field">
-        <label className="admin-label">{label}</label>
-        {textarea ? (
-          <textarea
-            className="admin-textarea"
-            value={value}
-            onChange={(e) => update(path, e.target.value)}
-            placeholder={placeholder}
-          />
-        ) : (
-          <input
-            className="admin-input"
-            value={value}
-            onChange={(e) => update(path, e.target.value)}
-            placeholder={placeholder}
-          />
-        )}
-      </div>
-    );
-  };
-
   const tabs = [
     { id: 'hero', label: 'Hero' },
     { id: 'about', label: 'Sobre mí' },
@@ -128,13 +134,13 @@ export default function AdminPanel({ data, setData, open, onClose }) {
           {tab === 'hero' && (
             <div className="admin-section">
               <div className="admin-section-title">Hero Section</div>
-              <Field label="Saludo" path="hero.greeting" placeholder="Hola, soy" />
-              <Field label="Nombre" path="hero.name" placeholder="Tu nombre" />
-              <Field label="Título profesional" path="hero.title" />
-              <Field label="Tagline" path="hero.tagline" textarea />
+              <Field draft={draft} update={update} label="Saludo" path="hero.greeting" placeholder="Hola, soy" />
+              <Field draft={draft} update={update} label="Nombre" path="hero.name" placeholder="Tu nombre" />
+              <Field draft={draft} update={update} label="Título profesional" path="hero.title" />
+              <Field draft={draft} update={update} label="Tagline" path="hero.tagline" textarea />
               <div className="admin-row">
-                <Field label="CTA Principal" path="hero.cta" />
-                <Field label="CTA Secundario" path="hero.ctaSecondary" />
+                <Field draft={draft} update={update} label="CTA Principal" path="hero.cta" />
+                <Field draft={draft} update={update} label="CTA Secundario" path="hero.ctaSecondary" />
               </div>
             </div>
           )}
@@ -143,8 +149,8 @@ export default function AdminPanel({ data, setData, open, onClose }) {
           {tab === 'about' && (
             <div className="admin-section">
               <div className="admin-section-title">Sobre Mí</div>
-              <Field label="Heading" path="about.heading" />
-              <Field label="Descripción" path="about.text" textarea />
+              <Field draft={draft} update={update} label="Heading" path="about.heading" />
+              <Field draft={draft} update={update} label="Descripción" path="about.text" textarea />
               <div className="admin-section-title" style={{ marginTop: 20 }}>
                 Estadísticas
               </div>
@@ -158,8 +164,8 @@ export default function AdminPanel({ data, setData, open, onClose }) {
                     {Icons.trash}
                   </button>
                   <div className="admin-row">
-                    <Field label="Valor" path={`about.stats.${i}.value`} placeholder="10+" />
-                    <Field label="Label" path={`about.stats.${i}.label`} placeholder="Proyectos" />
+                    <Field draft={draft} update={update} label="Valor" path={`about.stats.${i}.value`} placeholder="10+" />
+                    <Field draft={draft} update={update} label="Label" path={`about.stats.${i}.label`} placeholder="Proyectos" />
                   </div>
                 </div>
               ))}
@@ -186,8 +192,8 @@ export default function AdminPanel({ data, setData, open, onClose }) {
                     {Icons.trash}
                   </button>
                   <div className="admin-row">
-                    <Field label="Nombre" path={`skills.${i}.name`} />
-                    <Field label="Categoría" path={`skills.${i}.category`} placeholder="Frontend" />
+                    <Field draft={draft} update={update} label="Nombre" path={`skills.${i}.name`} />
+                    <Field draft={draft} update={update} label="Categoría" path={`skills.${i}.category`} placeholder="Frontend" />
                   </div>
                   <div className="admin-field">
                     <label className="admin-label">
@@ -227,12 +233,12 @@ export default function AdminPanel({ data, setData, open, onClose }) {
                   >
                     {Icons.trash}
                   </button>
-                  <Field label="Título" path={`experience.${i}.title`} />
+                  <Field draft={draft} update={update} label="Título" path={`experience.${i}.title`} />
                   <div className="admin-row">
-                    <Field label="Organización" path={`experience.${i}.org`} />
-                    <Field label="Período" path={`experience.${i}.period`} placeholder="2023 — Presente" />
+                    <Field draft={draft} update={update} label="Organización" path={`experience.${i}.org`} />
+                    <Field draft={draft} update={update} label="Período" path={`experience.${i}.period`} placeholder="2023 — Presente" />
                   </div>
-                  <Field label="Descripción" path={`experience.${i}.description`} textarea />
+                  <Field draft={draft} update={update} label="Descripción" path={`experience.${i}.description`} textarea />
                 </div>
               ))}
               <button
@@ -259,12 +265,12 @@ export default function AdminPanel({ data, setData, open, onClose }) {
                   >
                     {Icons.trash}
                   </button>
-                  <Field label="Título" path={`education.${i}.title`} />
+                  <Field draft={draft} update={update} label="Título" path={`education.${i}.title`} />
                   <div className="admin-row">
-                    <Field label="Institución" path={`education.${i}.org`} />
-                    <Field label="Período" path={`education.${i}.period`} />
+                    <Field draft={draft} update={update} label="Institución" path={`education.${i}.org`} />
+                    <Field draft={draft} update={update} label="Período" path={`education.${i}.period`} />
                   </div>
-                  <Field label="Descripción" path={`education.${i}.description`} textarea />
+                  <Field draft={draft} update={update} label="Descripción" path={`education.${i}.description`} textarea />
                 </div>
               ))}
               <button
@@ -291,12 +297,12 @@ export default function AdminPanel({ data, setData, open, onClose }) {
                   >
                     {Icons.trash}
                   </button>
-                  <Field label="Título" path={`certifications.${i}.title`} />
+                  <Field draft={draft} update={update} label="Título" path={`certifications.${i}.title`} />
                   <div className="admin-row">
-                    <Field label="Organización" path={`certifications.${i}.org`} />
-                    <Field label="Período" path={`certifications.${i}.period`} />
+                    <Field draft={draft} update={update} label="Organización" path={`certifications.${i}.org`} />
+                    <Field draft={draft} update={update} label="Período" path={`certifications.${i}.period`} />
                   </div>
-                  <Field label="Descripción" path={`certifications.${i}.description`} textarea />
+                  <Field draft={draft} update={update} label="Descripción" path={`certifications.${i}.description`} textarea />
                 </div>
               ))}
               <button
@@ -325,8 +331,8 @@ export default function AdminPanel({ data, setData, open, onClose }) {
                   >
                     {Icons.trash}
                   </button>
-                  <Field label="Título" path={`projects.${i}.title`} />
-                  <Field label="Descripción" path={`projects.${i}.description`} textarea />
+                  <Field draft={draft} update={update} label="Título" path={`projects.${i}.title`} />
+                  <Field draft={draft} update={update} label="Descripción" path={`projects.${i}.description`} textarea />
                   <div className="admin-field">
                     <label className="admin-label">Tags (separados por coma)</label>
                     <input
@@ -341,10 +347,10 @@ export default function AdminPanel({ data, setData, open, onClose }) {
                       placeholder="React, Python, AI"
                     />
                   </div>
-                  <Field label="URL imagen" path={`projects.${i}.image`} placeholder="https://..." />
+                  <Field draft={draft} update={update} label="URL imagen" path={`projects.${i}.image`} placeholder="https://..." />
                   <div className="admin-row">
-                    <Field label="Link Demo" path={`projects.${i}.link`} placeholder="https://..." />
-                    <Field label="GitHub" path={`projects.${i}.github`} placeholder="https://github.com/..." />
+                    <Field draft={draft} update={update} label="Link Demo" path={`projects.${i}.link`} placeholder="https://..." />
+                    <Field draft={draft} update={update} label="GitHub" path={`projects.${i}.github`} placeholder="https://github.com/..." />
                   </div>
                   <label className="admin-checkbox">
                     <input
@@ -379,12 +385,12 @@ export default function AdminPanel({ data, setData, open, onClose }) {
           {tab === 'contact' && (
             <div className="admin-section">
               <div className="admin-section-title">Contacto</div>
-              <Field label="Heading" path="contact.heading" />
-              <Field label="Texto" path="contact.text" textarea />
-              <Field label="Email" path="contact.email" placeholder="tu@email.com" />
-              <Field label="GitHub URL" path="contact.github" placeholder="https://github.com/..." />
-              <Field label="LinkedIn URL" path="contact.linkedin" placeholder="https://linkedin.com/in/..." />
-              <Field label="Twitter/X URL" path="contact.twitter" placeholder="https://x.com/..." />
+              <Field draft={draft} update={update} label="Heading" path="contact.heading" />
+              <Field draft={draft} update={update} label="Texto" path="contact.text" textarea />
+              <Field draft={draft} update={update} label="Email" path="contact.email" placeholder="tu@email.com" />
+              <Field draft={draft} update={update} label="GitHub URL" path="contact.github" placeholder="https://github.com/..." />
+              <Field draft={draft} update={update} label="LinkedIn URL" path="contact.linkedin" placeholder="https://linkedin.com/in/..." />
+              <Field draft={draft} update={update} label="Twitter/X URL" path="contact.twitter" placeholder="https://x.com/..." />
             </div>
           )}
         </div>
